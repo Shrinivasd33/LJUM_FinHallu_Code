@@ -1,0 +1,5 @@
+dimension,gemini-3.1-flash-lite,gpt-4,llama-3-70b
+CRI,Baseline (zero-shot): F1=0.50,Preferred: few_shot: F1=0.53 (+0.13 vs zero-shot),Baseline (zero-shot): F1=0.29
+EFS,Baseline (zero-shot): F1=0.42,Preferred: few_shot: F1=0.56 (+0.15 vs zero-shot),Baseline (zero-shot): F1=0.32
+NPI,Baseline (zero-shot): F1=0.14,Preferred: few_shot: F1=0.54 (+0.39 vs zero-shot),Baseline (zero-shot): F1=0.06
+TAI,Baseline (zero-shot): F1=0.63,Preferred: rag: F1=0.71 (+0.03 vs zero-shot),Baseline (zero-shot): F1=0.66

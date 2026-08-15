@@ -1,0 +1,20 @@
+# Verified working versions (installed and tested 2026-07-19 in the local
+# `ai_env` conda environment). Install with:
+#   pip install -r requirements.txt
+pandas==3.0.1
+numpy==2.4.3
+scipy==1.17.1
+scikit-learn==1.9.0
+pyarrow==24.0.0
+requests==2.34.2
+python-dotenv>=1.0
+datasets==5.0.0
+huggingface_hub==0.36.2
+
+# Model API clients
+openai==2.41.0
+groq==1.5.0
+google-genai==2.12.1
+
+# Testing
+pytest==9.1.1

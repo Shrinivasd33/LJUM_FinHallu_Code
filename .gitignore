@@ -1,0 +1,11 @@
+config/.env
+data/raw/
+data/processed/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# results/*.jsonl and results/*.csv are DELIBERATELY tracked, not ignored -
+# Chapter 4, Section 4.6 of the thesis states the raw per-instance outputs
+# are maintained in this repository so every reported number is traceable;
+# excluding them here would make that claim false.

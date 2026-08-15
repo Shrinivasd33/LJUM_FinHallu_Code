@@ -86,14 +86,21 @@ def main():
     # --- RQ2/RQ3 significance tests: zero-shot vs RAG, per (dimension, model) ---
     print("\n=== RQ2: zero-shot vs RAG significance (paired per-instance F1) ===")
     for (dimension, model), group in scored.groupby(["dimension", "model"]):
-        zs = group[group["condition"] == "zero_shot"].sort_values("id")
-        rag = group[group["condition"] == "rag"].sort_values("id")
-        common_ids = set(zs["id"]) & set(rag["id"])
-        if len(common_ids) < 2:
+        # Pair by (id, run_idx), not just id - a partially-collected condition
+        # (e.g. a model still mid-RAG-collection) can have fewer repeat runs
+        # for a given id than its zero-shot counterpart already has, and
+        # id-only pairing silently mismatches lengths in that case.
+        zs = group[group["condition"] == "zero_shot"].copy()
+        rag = group[group["condition"] == "rag"].copy()
+        zs["key"] = list(zip(zs["id"], zs["run_idx"]))
+        rag["key"] = list(zip(rag["id"], rag["run_idx"]))
+        common_keys = set(zs["key"]) & set(rag["key"])
+        if len(common_keys) < 2:
             continue
-        zs_f1 = zs[zs["id"].isin(common_ids)].sort_values("id")["f1"].tolist()
-        rag_f1 = rag[rag["id"].isin(common_ids)].sort_values("id")["f1"].tolist()
+        zs_f1 = zs[zs["key"].isin(common_keys)].sort_values("key")["f1"].tolist()
+        rag_f1 = rag[rag["key"].isin(common_keys)].sort_values("key")["f1"].tolist()
         result = compare_conditions(rag_f1, zs_f1)  # positive mean_diff = RAG helped
+        print(f"  [n={len(common_keys)} paired instances]", end=" ")
         direction = "RAG HELPED" if result.mean_diff > 0 else "RAG HURT" if result.mean_diff < 0 else "no change"
         print(
             f"{dimension} / {model}: {direction} (mean diff={result.mean_diff:+.3f}, "

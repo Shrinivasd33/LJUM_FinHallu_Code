@@ -142,11 +142,6 @@
 {"dimension": "TAI", "task": "FOMC", "id": "fomc_110", "model": "gpt-4", "condition": "few_shot", "run_idx": 0, "ground_truth": "dovish", "model_output": "dovish", "answer_format": "single_label"}
 {"dimension": "TAI", "task": "FOMC", "id": "fomc_110", "model": "gpt-4", "condition": "few_shot", "run_idx": 1, "ground_truth": "dovish", "model_output": "dovish", "answer_format": "single_label"}
 {"dimension": "TAI", "task": "FOMC", "id": "fomc_110", "model": "gpt-4", "condition": "few_shot", "run_idx": 2, "ground_truth": "dovish", "model_output": "dovish", "answer_format": "single_label"}
-{"dimension": "TAI", "task": "FOMC", "id": "fomc_390", "model": "gpt-4", "condition": "few_shot", "run_idx": 0, "ground_truth": "neutral", "model_output": null, "answer_format": "single_label"}
-{"dimension": "TAI", "task": "FOMC", "id": "fomc_390", "model": "gpt-4", "condition": "few_shot", "run_idx": 1, "ground_truth": "neutral", "model_output": null, "answer_format": "single_label"}
-{"dimension": "TAI", "task": "FOMC", "id": "fomc_390", "model": "gpt-4", "condition": "few_shot", "run_idx": 2, "ground_truth": "neutral", "model_output": null, "answer_format": "single_label"}
-{"dimension": "TAI", "task": "FOMC", "id": "fomc_172", "model": "gpt-4", "condition": "few_shot", "run_idx": 0, "ground_truth": "hawkish", "model_output": null, "answer_format": "single_label"}
-{"dimension": "TAI", "task": "FOMC", "id": "fomc_172", "model": "gpt-4", "condition": "few_shot", "run_idx": 1, "ground_truth": "hawkish", "model_output": null, "answer_format": "single_label"}
 {"dimension": "TAI", "task": "FOMC", "id": "fomc_172", "model": "gpt-4", "condition": "few_shot", "run_idx": 2, "ground_truth": "hawkish", "model_output": "neutral", "answer_format": "single_label"}
 {"dimension": "TAI", "task": "FOMC", "id": "fomc_486", "model": "gpt-4", "condition": "few_shot", "run_idx": 0, "ground_truth": "neutral", "model_output": "neutral", "answer_format": "single_label"}
 {"dimension": "TAI", "task": "FOMC", "id": "fomc_486", "model": "gpt-4", "condition": "few_shot", "run_idx": 1, "ground_truth": "neutral", "model_output": "neutral", "answer_format": "single_label"}
@@ -298,3 +293,8 @@
 {"dimension": "TAI", "task": "FOMC", "id": "fomc_36", "model": "gpt-4", "condition": "few_shot", "run_idx": 0, "ground_truth": "hawkish", "model_output": "hawkish", "answer_format": "single_label"}
 {"dimension": "TAI", "task": "FOMC", "id": "fomc_36", "model": "gpt-4", "condition": "few_shot", "run_idx": 1, "ground_truth": "hawkish", "model_output": "hawkish", "answer_format": "single_label"}
 {"dimension": "TAI", "task": "FOMC", "id": "fomc_36", "model": "gpt-4", "condition": "few_shot", "run_idx": 2, "ground_truth": "hawkish", "model_output": "hawkish", "answer_format": "single_label"}
+{"dimension": "TAI", "task": "FOMC", "id": "fomc_390", "model": "gpt-4", "provider": "openai", "model_id": "gpt-4o", "condition": "few_shot", "run_idx": 0, "ground_truth": "neutral", "model_output": "neutral", "answer_format": "single_label"}
+{"dimension": "TAI", "task": "FOMC", "id": "fomc_390", "model": "gpt-4", "provider": "openai", "model_id": "gpt-4o", "condition": "few_shot", "run_idx": 1, "ground_truth": "neutral", "model_output": "neutral", "answer_format": "single_label"}
+{"dimension": "TAI", "task": "FOMC", "id": "fomc_390", "model": "gpt-4", "provider": "openai", "model_id": "gpt-4o", "condition": "few_shot", "run_idx": 2, "ground_truth": "neutral", "model_output": "neutral", "answer_format": "single_label"}
+{"dimension": "TAI", "task": "FOMC", "id": "fomc_172", "model": "gpt-4", "provider": "openai", "model_id": "gpt-4o", "condition": "few_shot", "run_idx": 0, "ground_truth": "hawkish", "model_output": "neutral", "answer_format": "single_label"}
+{"dimension": "TAI", "task": "FOMC", "id": "fomc_172", "model": "gpt-4", "provider": "openai", "model_id": "gpt-4o", "condition": "few_shot", "run_idx": 1, "ground_truth": "hawkish", "model_output": "neutral", "answer_format": "single_label"}

@@ -109,6 +109,16 @@ def run_condition(
                     "task": row["task"],
                     "id": row["id"],
                     "model": model_name,
+                    # Which backend actually served this call (e.g. "deepinfra"
+                    # vs "groq" for llama-3-70b) - added 2026-08-15 after
+                    # discovering Groq and DeepInfra serve this model through
+                    # two different proprietary quantization schemes, not a
+                    # byte-identical checkpoint (Chapter 3, Section 3.6;
+                    # Chapter 5, Section 5.8). Records written before this fix
+                    # don't carry this field, which is itself disclosed as a
+                    # provenance-tracking limitation.
+                    "provider": getattr(model, "provider", None),
+                    "model_id": getattr(model, "model_id", None),
                     "condition": condition,
                     "run_idx": run_idx,
                     "ground_truth": row["ground_truth"],

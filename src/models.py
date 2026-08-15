@@ -72,6 +72,7 @@ class GPT4Wrapper(ModelWrapper):
             raise RuntimeError("OPENAI_API_KEY not set in config/.env")
         self.client = OpenAI(api_key=api_key)
         self.model_id = model_id
+        self.provider = "openai"
 
     def _call(self, prompt: str) -> str:
         resp = self.client.chat.completions.create(
@@ -132,7 +133,17 @@ class Llama3Wrapper(ModelWrapper):
         elif deepinfra_key:
             from openai import OpenAI  # DeepInfra exposes an OpenAI-compatible API
             self.client = OpenAI(api_key=deepinfra_key, base_url="https://api.deepinfra.com/v1/openai")
-            self.model_id = "meta-llama/Llama-3.3-70B-Instruct"
+            # 2026-08-15: corrected to the model ID DeepInfra actually serves and
+            # bills under (confirmed live via GET /v1/openai/models and the
+            # account's own usage dashboard) - the plain "-Instruct" ID this
+            # wrapper previously requested does not exist as a separate
+            # deployment on DeepInfra at all; it was being silently aliased to
+            # this exact "-Turbo" ID the whole time, so this is a documentation
+            # correction to match observed reality, not a behaviour change.
+            # "-Turbo" is DeepInfra's FP8-quantized serving of the checkpoint,
+            # not a byte-identical FP16 reference - disclosed as a limitation in
+            # Chapter 5, Section 5.8 and Chapter 3, Section 3.6.
+            self.model_id = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
             self.provider = "deepinfra"
         elif groq_key:
             from groq import Groq
@@ -175,6 +186,7 @@ class GeminiWrapper(ModelWrapper):
             raise RuntimeError("GOOGLE_API_KEY not set in config/.env")
         self.client = genai.Client(api_key=api_key)
         self.model_id = model_id
+        self.provider = "google"
         self._types = types
 
     def _call(self, prompt: str) -> str:

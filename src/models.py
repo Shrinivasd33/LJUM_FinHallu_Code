@@ -32,6 +32,13 @@ logger = logging.getLogger(__name__)
 TEMPERATURE = 0
 MAX_RETRIES = 5
 BASE_BACKOFF_SECONDS = 2
+# Per-attempt network timeout, seconds. Without an explicit value the openai
+# SDK defaults to 600s, which let a single hung connection block a worker
+# for up to ~50 minutes across all 5 retry attempts before generate() gave
+# up (observed twice on DeepInfra, 2026-08-15). 60s is generous for a single
+# completion call at this study's prompt lengths while failing fast enough
+# for the existing exponential-backoff retry loop to actually do its job.
+REQUEST_TIMEOUT_SECONDS = 60
 
 
 class ModelWrapper(ABC):
@@ -70,7 +77,7 @@ class GPT4Wrapper(ModelWrapper):
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise RuntimeError("OPENAI_API_KEY not set in config/.env")
-        self.client = OpenAI(api_key=api_key)
+        self.client = OpenAI(api_key=api_key, timeout=REQUEST_TIMEOUT_SECONDS)
         self.model_id = model_id
         self.provider = "openai"
 
@@ -127,12 +134,20 @@ class Llama3Wrapper(ModelWrapper):
         groq_key = os.getenv("GROQ_API_KEY")
         if cerebras_key:
             from openai import OpenAI  # Cerebras exposes an OpenAI-compatible API
-            self.client = OpenAI(api_key=cerebras_key, base_url="https://api.cerebras.ai/v1")
+            self.client = OpenAI(api_key=cerebras_key, base_url="https://api.cerebras.ai/v1", timeout=REQUEST_TIMEOUT_SECONDS)
             self.model_id = "llama-3.3-70b"
             self.provider = "cerebras"
         elif deepinfra_key:
             from openai import OpenAI  # DeepInfra exposes an OpenAI-compatible API
-            self.client = OpenAI(api_key=deepinfra_key, base_url="https://api.deepinfra.com/v1/openai")
+            # 2026-08-15: explicit timeout added after two separate hangs
+            # (EFS zero-shot, both times) where a call neither succeeded nor
+            # raised an exception for 30-40+ minutes - the openai SDK's
+            # default timeout is 600s per attempt with no override here
+            # previously, so 5 retry attempts could hang for the better part
+            # of an hour before finally giving up. A short explicit timeout
+            # lets the existing retry/backoff logic in generate() do its job
+            # promptly instead of stalling silently.
+            self.client = OpenAI(api_key=deepinfra_key, base_url="https://api.deepinfra.com/v1/openai", timeout=REQUEST_TIMEOUT_SECONDS)
             # 2026-08-15: corrected to the model ID DeepInfra actually serves and
             # bills under (confirmed live via GET /v1/openai/models and the
             # account's own usage dashboard) - the plain "-Instruct" ID this
@@ -147,7 +162,7 @@ class Llama3Wrapper(ModelWrapper):
             self.provider = "deepinfra"
         elif groq_key:
             from groq import Groq
-            self.client = Groq(api_key=groq_key)
+            self.client = Groq(api_key=groq_key, timeout=REQUEST_TIMEOUT_SECONDS)
             self.model_id = model_id
             self.provider = "groq"
         else:
@@ -184,7 +199,7 @@ class GeminiWrapper(ModelWrapper):
         api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
             raise RuntimeError("GOOGLE_API_KEY not set in config/.env")
-        self.client = genai.Client(api_key=api_key)
+        self.client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT_SECONDS * 1000))
         self.model_id = model_id
         self.provider = "google"
         self._types = types

@@ -35,14 +35,21 @@ pip install -r requirements.txt
      pricing at this study's call volume would exceed $100, well past the
      proposal's under-$5 estimate; a real paid test batch on the most
      token-expensive task confirmed gpt-4o's projected total at ~$22)
-   - `GROQ_API_KEY` - from https://console.groq.com/keys (free tier, rate-limited).
-     Serves Llama-3.3-70B-Versatile.
+   - **One Llama-3 host key.** `Llama3Wrapper` picks a provider at runtime by which
+     key is present, in this order: `CEREBRAS_API_KEY`, then `DEEPINFRA_API_KEY`,
+     then `GROQ_API_KEY`. This study's results were produced almost entirely through
+     DeepInfra (`DEEPINFRA_API_KEY`, from https://deepinfra.com/dash/api_keys), which
+     serves the checkpoint as `meta-llama/Llama-3.3-70B-Instruct-Turbo`. Groq
+     (https://console.groq.com/keys, free tier) served the earlier part of collection
+     as `llama-3.3-70b-versatile`; its free tier caps that model at 100,000 tokens
+     per day, which is what forced the move. Set DeepInfra's key to reproduce the
+     published numbers.
    - `GOOGLE_API_KEY` - from https://aistudio.google.com/apikey (free tier, rate-limited).
-     Registry uses `gemini-3.5-flash`, not `gemini-1.5-pro` - Google withdrew
+     Registry uses `gemini-3.1-flash-lite`, not `gemini-1.5-pro` - Google withdrew
      API access to gemini-1.5-pro for new projects entirely (404 "no longer
-     available", verified live) before this was set up; gemini-3.5-flash is
-     the current stable model reachable at this study's scale on the free
-     tier (Pro-class models return no usable free quota).
+     available", verified live) before this was set up; gemini-3.1-flash-lite is
+     the model reachable at this study's scale on the free tier (Pro-class models
+     return no usable free quota).
    - `HF_TOKEN` - optional, only needed to unlock 3 gated FinBen datasets (see below)
 
 `config/.env` is in `.gitignore` and is never read by anything except your
@@ -81,9 +88,9 @@ $PY = "C:\Users\Sonali\anaconda3\envs\ai_env\python.exe"
 & $PY src/run_experiments.py --dimension NPI --models gpt-4 --condition zero_shot --limit 5
 
 # Once happy, run the real thing per dimension/model/condition, e.g.:
-& $PY src/run_experiments.py --dimension NPI --models gpt-4,llama-3-70b,gemini-3.5-flash --condition zero_shot
-& $PY src/run_experiments.py --dimension NPI --models gpt-4,llama-3-70b,gemini-3.5-flash --condition few_shot
-& $PY src/run_experiments.py --dimension NPI --models gpt-4,llama-3-70b,gemini-3.5-flash --condition rag
+& $PY src/run_experiments.py --dimension NPI --models gpt-4,llama-3-70b,gemini-3.1-flash-lite --condition zero_shot
+& $PY src/run_experiments.py --dimension NPI --models gpt-4,llama-3-70b,gemini-3.1-flash-lite --condition few_shot
+& $PY src/run_experiments.py --dimension NPI --models gpt-4,llama-3-70b,gemini-3.1-flash-lite --condition rag
 # repeat --dimension for TAI, EFS, CRI
 
 # Phase 4+5: score everything collected so far and build the deployment matrix
@@ -121,7 +128,9 @@ Actually run and passing on this machine, no fabricated results:
   fail with clear, actionable errors when keys are missing. **Now verified
   against all three real APIs (2026-07-26)** with real, billed/rate-limited
   calls through the full pipeline (prompt build -> model call -> scoring):
-  Llama-3.3-70B-Versatile (Groq, free), Gemini 3.5 Flash (Google, free), and
+  Llama-3.3-70B (Groq at the time of that check; the full runs were served by
+  DeepInfra as `meta-llama/Llama-3.3-70B-Instruct-Turbo`), Gemini 3.1 Flash Lite
+  (Google, free), and
   GPT-4o (OpenAI, paid - a real 45-call test batch on the most
   token-expensive task confirmed the projected ~$22 total cost before the
   full run was launched). Full experiment runs for all three models are
@@ -174,6 +183,17 @@ pipeline:
    with no native instruction, so it gets one small task-specific
    instruction of its own (`PHRASEBANK_INSTRUCTION` in `task_config.py`).
 
+## A note on the archived files in `results/`
+
+Two files are named `_ARCHIVED_..._gemini-3.5-flash__..._20-per-day-quota-issue.jsonl.bak`.
+They are the record of an abandoned first attempt, kept rather than deleted so the
+run history is complete: `gemini-3.5-flash` was tried as the Gemini substitute and
+turned out to carry a 20-requests-per-day free-tier quota, which made it unusable at
+this study's scale. Most of their rows have `"model_output": null` for exactly that
+reason. No number in the thesis comes from them - the reported Gemini results are all
+from `gemini-3.1-flash-lite`. See the `models.py` comment at the `GeminiWrapper` for
+the full substitution chain.
+
 ## Known methodology deviations from the proposal (disclosed, not hidden)
 
 1. **NPI excludes TAT-QA.** Its ground truth mixes numeric answers,
@@ -200,9 +220,15 @@ pipeline:
    $100 against the proposal's under-$5 estimate, so `gpt-4o` was used
    instead - OpenAI's current model in the GPT-4 family. Google withdrew API
    access to `gemini-1.5-pro` for new projects entirely (a live-verified 404
-   "no longer available") before experiments began, so `gemini-3.5-flash`
-   was used instead - the current stable Gemini model reachable at this
-   study's scale on the free tier. Both stay within the model family named
+   "no longer available") before experiments began, so `gemini-3.1-flash-lite`
+   was used instead - the Gemini model reachable at this study's scale on the
+   free tier. Llama-3 moved host mid-collection: Groq served the earlier
+   1,249 of 7,176 scored Llama records (17.4%) before its free tier's
+   100,000-tokens-per-day cap on `llama-3.3-70b-versatile` forced a move to
+   DeepInfra, which served the remaining 5,927 (82.6%) as
+   `meta-llama/Llama-3.3-70B-Instruct-Turbo` - the same checkpoint, FP8-quantized
+   rather than a byte-identical FP16 reference, disclosed in the thesis at
+   Chapter 3 Section 3.6 and Chapter 5 Section 5.8. Both stay within the model family named
    in the approved proposal, and both are a real-time instance of the
    model-version-drift risk the thesis's Scope section (Chapter 1, Section
    1.5) already anticipates. See `config/task_config.py`'s `MODELS` comment

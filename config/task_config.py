@@ -166,9 +166,9 @@ PHRASEBANK_ANSWER_FORMAT = "single_label"
 # NOTE 2026-07-26: Google retired gemini-1.5-pro AND gemini-2.5-flash for new
 # API projects (404 "no longer available to new users") before Phase 2
 # execution - the model-version-drift risk already flagged in the thesis
-# limitations. Verified against the live API: gemini-3.5-flash is the current
-# stable pinned Gemini model this key can call at study scale on the free
-# tier (Pro-class models return 429 immediately - no usable free quota).
+# limitations. Verified against the live API: gemini-3.1-flash-lite is the
+# pinned Gemini model this key can call at study scale on the free tier
+# (Pro-class models return 429 immediately - no usable free quota).
 # Document this substitution in Chapter 3/Table 3.3 when finalising.
 MODELS = {
     "gpt-4": {"provider": "openai", "model_id": "gpt-4o"},

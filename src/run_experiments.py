@@ -15,7 +15,7 @@ until config/.env has real API keys - see config/.env.example.
 
 Usage:
     python src/run_experiments.py --dimension NPI --models gpt-4 --condition zero_shot --limit 10
-    python src/run_experiments.py --dimension NPI --models gpt-4,llama-3-70b,gemini-3.5-flash --condition all
+    python src/run_experiments.py --dimension NPI --models gpt-4,llama-3-70b,gemini-3.1-flash-lite --condition all
 
 Start with --limit 5-10 and one model to sanity-check cost/behaviour before
 running the full 100-200 instances x 3 models x 3 conditions.
@@ -155,7 +155,7 @@ def hallucinating_task_model_pairs(dimension: str, model_name: str) -> set[str]:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dimension", required=True, choices=["NPI", "TAI", "EFS", "CRI"])
-    parser.add_argument("--models", required=True, help="comma-separated: gpt-4,llama-3-70b,gemini-3.5-flash")
+    parser.add_argument("--models", required=True, help="comma-separated: gpt-4,llama-3-70b,gemini-3.1-flash-lite")
     parser.add_argument("--condition", required=True, choices=["zero_shot", "few_shot", "rag", "all"])
     parser.add_argument("--limit", type=int, default=None, help="cap instances (use for cheap sanity checks)")
     args = parser.parse_args()
